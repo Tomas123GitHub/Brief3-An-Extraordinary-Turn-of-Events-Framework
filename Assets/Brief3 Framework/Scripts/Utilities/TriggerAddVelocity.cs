@@ -17,6 +17,7 @@ public class TriggerAddVelocity : MonoBehaviour
     public bool useAxis;                        // Option to use one of this game objects axis for direction (Eg will override velocityDirection)
     public Axis axis;                           // Axis to use when useAxis is true.
     public float velocityAmount = 1f;           // Amount of velocity to add.
+    public ForceMode forceMode;                 // Type of force to add (See Unity Scripting Reference for more)
 
     // Methods
     private void OnTriggerEnter( Collider other )
@@ -37,6 +38,6 @@ public class TriggerAddVelocity : MonoBehaviour
         }
 
         // Add velocity to the Rigidbody.
-        other.attachedRigidbody.velocity += direction * this.velocityAmount;
+        other.attachedRigidbody.AddForce( direction * this.velocityAmount, this.forceMode );
     }
 }

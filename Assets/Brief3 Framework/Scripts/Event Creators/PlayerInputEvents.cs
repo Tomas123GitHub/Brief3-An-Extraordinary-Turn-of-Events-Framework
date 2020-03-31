@@ -12,34 +12,45 @@ using UnityEngine.Events;
 public class PlayerInputEvents : MonoBehaviour
 {
     // Events
-    public UnityEvent keyPressed;                   // Invoked whenever the action key is pressed.
+    public UnityEvent keyPressedEvent;              // Invoked whenever the key is pressed.
+    public UnityEvent keyReleasedEvent;             // Invoked whenever the key is released.
+    public UnityEvent keyNotPressedEvent;           // Invoked each Update() if the key is NOT pressed.
 
     // Properties
     public KeyCode key = KeyCode.Space;             // The key to press to invoke the 'key pressed' event.
-    public bool singlePress = true;                 // If this is set to true, then will only invoke events when the key is first pressed. Otherwise will invoke each Update/frame the key is held down on.
+
+    private bool wasKeyLastPressed;                 // Internal boolean for tracking if the key was down last Update()
 
     // Methods
     private void Update()
     {
-        // Check for key pressed. If using singlePress then check with Input.GetKeyDown() otherwise check with Input.GetKey() (See unity Scripting Reference for more on these)
-        bool keyIsPressed = false;
-        if( this.singlePress == true )
+        // If key is pressed, check to invoke event.
+        if( Input.GetKey( this.key ) == true )
         {
-            if( Input.GetKeyDown( this.key ) == true ) { keyIsPressed = true; } // Check if the key has been pressed since last Update.
+            if( this.keyPressedEvent != null )    // Check some methods have subscribed to the keyPressedEvent.
+                this.keyPressedEvent.Invoke();    // Invoke any methods that have subscribed to the keyPressedEvent.
+
+
+            // Record the key is pressed for next Update()
+            this.wasKeyLastPressed = true;
         }
         else
         {
-            if( Input.GetKey( this.key ) == true ) { keyIsPressed = true; } // Check if the key is currently pressed (Eg held down)
-        }
-
-        // If key is pressed, check to invoke event.
-        if( keyIsPressed == true )
-        {
-            if( this.keyPressed != null )    // Check some methods have subscribed to the leftKeyPressed event.
+            // Check if the key was released since last Update()
+            if( this.wasKeyLastPressed == true )
             {
-                this.keyPressed.Invoke();    // Invoke any methods that have subscribed to the leftKeyPressed event.
+                if( this.keyReleasedEvent != null )     // Check some methods have subscribed to the keyReleasedEvent.
+                    this.keyReleasedEvent.Invoke();     // Invoke any methods that have subscribed to the keyReleasedEvent.
+               
             }
-        }
+            else
+            {
+                if( this.keyNotPressedEvent != null )     // Check some methods have subscribed to the keyNotPressedEvent.
+                    this.keyNotPressedEvent.Invoke();     // Invoke any methods that have subscribed to the keyNotPressedEvent.
+            }
 
+            // Record the key is not pressed for next Update()
+            this.wasKeyLastPressed = false;
+        } 
     }
 }
